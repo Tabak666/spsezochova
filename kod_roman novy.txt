@@ -13,9 +13,9 @@ val screen =
 |8:255,255,255
 |""".stripMargin
 
-case class Pos(y : Int , x : Int)
-case class Props(red:Int, green:Int, blue:Int, col: Option[Int])
 case class Pixel(pos:Pos,props:Props)
+case class Props(red:Int, green:Int, blue:Int, col: Option[Int])
+case class Pos(y : Int , x : Int)
 val pixels: List[Pixel] =
 
 for (line <- screen.split("\n").toList.map(_.replace(" ",""))) yield {
@@ -35,4 +35,4 @@ val col : Map[Int,Int] = pixels.groupBy(_.pos.y).map{
 case (row,pixel) => (row,(pixel.maxBy(_.props.col)).pos.x)
 }
 println("max col --> " + col)
-}m
+}
