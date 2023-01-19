@@ -19,19 +19,34 @@ object Main extends App {
   val pixels: List[Pixel] = screen
     .split("\n")
     .map(_.replace(" ", ""))
-    .map {
-      case s"$id:$red,$green,$blue,$col" => Pixel(Pos(id.toInt / dimension, id.toInt % dimension), Props(red.toInt, green.toInt, blue.toInt, col.toIntOption))
-      case s"$id:$red,$green,$blue" => Pixel(Pos(id.toInt / dimension, id.toInt % dimension), Props(red.toInt, green.toInt, blue.toInt, None))
-    }
+    .map(parsePixel)
     .toList
 
   val red: Map[Int, Pixel] = pixels
     .groupBy(_.pos.y)
-    .map { case (row, pixels) => (row, pixels.maxBy(_.props.red)) }
+    .map(maxRedPixel)
   println("max red --> " + red)
 
   val col: Map[Int, Int] = pixels
     .groupBy(_.pos.y)
-    .map { case (row, pixels) => (row, pixels.filter(_.props.col.isDefined).maxBy(_.props.col.get).pos.x) }
+    .map(maxColPixel)
   println("max col --> " + col)
+
+  private def parsePixel(line: String): Pixel = {
+    line match {
+      case s"$id:$red,$green,$blue,$col" => Pixel(Pos(id.toInt / dimension, id.toInt % dimension), Props(red.toInt, green.toInt, blue.toInt, col.toIntOption))
+      case s"$id:$red,$green,$blue" => Pixel(Pos(id.toInt / dimension, id.toInt % dimension), Props(red.toInt, green.toInt, blue.toInt, None))
+    }
+  }
+
+  private def maxRedPixel(rowPixel: (Int, List[Pixel])): (Int, Pixel) = {
+    val (row, pixels) = rowPixel
+    (row, pixels.maxBy(_.props.red))
+  }
+
+  private def maxColPixel(rowPixel: (Int, List[Pixel])): (Int, Int) = {
+    val (row, pixels) = rowPixel
+    val colPixel = pixels.filter(_.props.col.isDefined).maxBy(_.props.col.get)
+    (row, colPixel.pos.x)
+  }
 }
